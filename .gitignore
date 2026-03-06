@@ -1,0 +1,6 @@
+aira/
+__pycache__/
+*.pyc
+.env
+data/
+.ipynb_checkpoints/
