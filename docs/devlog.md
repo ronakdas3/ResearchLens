@@ -167,3 +167,30 @@ python src/data/pdf_loader.py
 
 Result:
 Successfully extracted and printed the first portion of the document text.
+
+---
+
+## Step 10 – Implement Text Chunking
+
+Created module for splitting document text into smaller chunks.
+
+File created:
+src/data/text_chunker.py
+
+Purpose:
+Large documents must be split into smaller pieces before generating embeddings and storing them in a vector database.
+
+Chunking parameters:
+chunk_size = 500 characters
+overlap = 50 characters
+
+Overlap ensures contextual continuity between adjacent chunks.
+
+Test:
+Ran the module on sample research paper.
+
+Command:
+python src/data/text_chunker.py
+
+Result:
+Successfully generated multiple text chunks from the document.
