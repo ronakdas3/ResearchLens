@@ -194,3 +194,60 @@ python src/data/text_chunker.py
 
 Result:
 Successfully generated multiple text chunks from the document.
+
+---
+
+## Step 11 – Implement Embedding Generation
+
+Created module for converting text chunks into vector embeddings.
+
+File created:
+src/embeddings/embedding_generator.py
+
+Model used:
+Sentence-BERT (all-MiniLM-L6-v2)
+
+Purpose:
+Convert document chunks into numerical vectors representing semantic meaning.
+
+Pipeline:
+
+PDF → Text → Chunks → Embeddings
+
+Test:
+Ran embedding generator on sample research paper.
+
+Command:
+python src/embeddings/embedding_generator.py
+
+Result:
+Successfully generated embeddings for all text chunks.
+
+---
+
+## Step 12 – Fix Python Module Import Structure
+
+Encountered import error:
+
+ModuleNotFoundError: No module named 'src'
+
+Solution:
+
+Converted project folders into Python packages by adding `__init__.py` files.
+
+Files added:
+src/__init__.py
+src/data/__init__.py
+src/embeddings/__init__.py
+src/retrieval/__init__.py
+src/models/__init__.py
+src/training/__init__.py
+src/evaluation/__init__.py
+src/inference/__init__.py
+src/utils/__init__.py
+
+This allows modules to be imported using the project package structure.
+
+command to run as a module(from the root):
+
+python -m src.embeddings.embedding_generator
