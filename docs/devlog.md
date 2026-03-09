@@ -166,7 +166,7 @@ Command:
 python src/data/pdf_loader.py
 
 Result:
-Successfully extracted and printed the first portion of the document text.
+extract and print the first portion of the document text.
 
 ---
 
@@ -193,7 +193,7 @@ Command:
 python src/data/text_chunker.py
 
 Result:
-Successfully generated multiple text chunks from the document.
+generate multiple text chunks from the document.
 
 ---
 
@@ -221,7 +221,7 @@ Command:
 python src/embeddings/embedding_generator.py
 
 Result:
-Successfully generated embeddings for all text chunks.
+generate embeddings for all text chunks.
 
 ---
 
@@ -251,3 +251,31 @@ This allows modules to be imported using the project package structure.
 command to run as a module(from the root):
 
 python -m src.embeddings.embedding_generator
+
+---
+
+## Step 13 – Implement Vector Database with FAISS
+
+Created module for storing and searching document embeddings.
+
+File created:
+src/retrieval/vector_store.py
+
+Library used:
+FAISS
+
+Purpose:
+Store embeddings in a vector database and enable similarity search.
+
+Pipeline:
+
+PDF → Text → Chunks → Embeddings → Vector Index
+
+Test:
+Ran the module to build a FAISS index from generated embeddings.
+
+Command:
+python -m src.retrieval.vector_store
+
+Result:
+create vector index containing document embeddings.
