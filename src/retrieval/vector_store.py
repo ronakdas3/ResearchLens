@@ -5,6 +5,9 @@ from src.data.pdf_loader import extract_text_from_pdf
 from src.data.text_chunker import chunk_text
 from src.embeddings.embedding_generator import generate_embeddings
 
+# dimension = embeddings.shape[1]
+# index = faiss.IndexFlatL2(dimension)
+
 
 def build_vector_index(embeddings):
     """
@@ -45,3 +48,6 @@ if __name__ == "__main__":
     index = build_vector_index(embeddings)
 
     print("Total vectors in index:", index.ntotal)
+
+    # print(embeddings.shape)
+    # print(index.ntotal)

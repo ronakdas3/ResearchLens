@@ -279,3 +279,28 @@ python -m src.retrieval.vector_store
 
 Result:
 create vector index containing document embeddings.
+
+---
+
+## Step 14 – Implement Query Engine for Semantic Retrieval
+
+Created module for retrieving relevant document chunks based on a user query.
+
+File created:
+src/inference/query_engine.py
+
+Purpose:
+Convert user questions into embeddings and perform similarity search on the FAISS index to retrieve the most relevant document chunks.
+
+Pipeline:
+
+User Query → Query Embedding → Vector Search → Retrieve Chunks
+
+Test:
+Executed the query engine on a sample research paper.
+
+Command:
+python -m src.inference.query_engine
+
+Result:
+System successfully retrieved the most relevant sections of the document for a given question.
