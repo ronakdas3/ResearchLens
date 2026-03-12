@@ -34,3 +34,19 @@ src/retrieval/vector_store.py
 
 Purpose:
 Store document embeddings in a FAISS index to enable fast semantic search.
+
+### Query Engine
+
+Location:
+src/inference/query_engine.py
+
+Purpose:
+Retrieve relevant document chunks for a user query using semantic similarity search.
+
+### LLM Answer Generation
+
+Location:
+src/models/llm_interface.py
+
+Purpose:
+Generate answers from retrieved document context using a transformer-based language model.

@@ -303,4 +303,36 @@ Command:
 python -m src.inference.query_engine
 
 Result:
-System successfully retrieved the most relevant sections of the document for a given question.
+retrieve ost relevant sections of the document for a given question.
+
+note:
+the retrieved chunks may not make the most sense they are just relevent chunks and we would need a LLM to generate answers
+
+---
+
+## Step 15 – Integrate Language Model for Answer Generation
+
+Implemented LLM interface for generating answers using retrieved document context.
+
+File created:
+src/models/llm_interface.py
+
+Model used:
+FLAN-T5 (google/flan-t5-base)
+used AutoTokenizer and AutoModelForSeq2SeqLM for now
+
+Purpose:
+Generate natural language answers using the relevant document chunks retrieved by the query engine.
+
+Pipeline:
+
+User Query → Query Embedding → Vector Search → Relevant Chunks → LLM → Generated Answer
+
+Test:
+Executed the query engine with LLM integration.
+
+Command:
+python -m src.inference.query_engine
+
+Result:
+generate answers based on retrieved document context.
