@@ -59,7 +59,7 @@ def load_llm():
 
 
 def generate_answer(query, context_chunks, tokenizer, model):
-
+    print( "generate answer load")
     # context = "\n\n".join(context_chunks)
     context = "\n\n".join(context_chunks[:3])
 

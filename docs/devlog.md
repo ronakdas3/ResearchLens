@@ -336,3 +336,21 @@ python -m src.inference.query_engine
 
 Result:
 generate answers based on retrieved document context.
+
+---
+
+## Step 16 – Add Persistent FAISS Index
+
+Implemented a separate indexing pipeline to avoid rebuilding embeddings and vector indices for every query.
+
+File created:
+src/indexing/build_index.py
+
+Functionality:
+Processes documents, generates embeddings, builds a FAISS index, and saves the index and text chunks to disk.
+
+Saved files:
+data/faiss.index
+data/chunks.npy
+
+This separates the expensive indexing step from the query phase, significantly improving system efficiency.

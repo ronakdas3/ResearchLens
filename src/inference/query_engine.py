@@ -1,4 +1,5 @@
 import numpy as np
+import faiss
 from sentence_transformers import SentenceTransformer
 
 from src.data.pdf_loader import extract_text_from_pdf
@@ -25,15 +26,17 @@ def retrieve_relevant_chunks(query, chunks, index, model, k=5):
 
 if __name__ == "__main__":
 
-    pdf_path = "data/raw/sample_paper.pdf"
+    # pdf_path = "data/raw/sample_paper.pdf"
+    # text = extract_text_from_pdf(pdf_path)
+    # chunks = chunk_text(text)
+    # embeddings = generate_embeddings(chunks)
+    # index = build_vector_index(embeddings)
 
-    text = extract_text_from_pdf(pdf_path)
-    chunks = chunk_text(text)
-    embeddings = generate_embeddings(chunks)
+    index = faiss.read_index("data/faiss.index")
+    chunks = np.load("data/chunks.npy", allow_pickle=True).tolist()
 
-    index = build_vector_index(embeddings)
+    # model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    model = SentenceTransformer("all-MiniLM-L6-v2")
     embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 
     # query = "What is the main contribution of this paper?"
