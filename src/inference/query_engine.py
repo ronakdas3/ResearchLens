@@ -1,6 +1,7 @@
 import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
+from src.models.model_manager import get_embedding_model, get_llm
 
 from src.data.pdf_loader import extract_text_from_pdf
 from src.data.text_chunker import chunk_text
@@ -9,7 +10,7 @@ from src.retrieval.vector_store import build_vector_index, search_index
 
 from src.models.llm_interface import load_llm, generate_answer
 
-def retrieve_relevant_chunks(query, chunks, index, model, k=5):
+def retrieve_relevant_chunks(query, chunks, index, embedding_model, k=5):
     """
     Retrieve the most relevant document chunks for a query.
     """
@@ -32,12 +33,15 @@ if __name__ == "__main__":
     # embeddings = generate_embeddings(chunks)
     # index = build_vector_index(embeddings)
 
+    embedding_model = get_embedding_model()
+    tokenizer, llm_model = get_llm()
+
     index = faiss.read_index("data/faiss.index")
     chunks = np.load("data/chunks.npy", allow_pickle=True).tolist()
 
     # model = SentenceTransformer("all-MiniLM-L6-v2")
 
-    embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+    # embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
 
     # query = "What is the main contribution of this paper?"
 
@@ -53,15 +57,15 @@ if __name__ == "__main__":
 
     # load LLM
     # generator = load_llm()
-    tokenizer, model = load_llm()
+    # tokenizer, model = load_llm()
 
     # query = "What is the main contribution of this paper?"
     query = "Who are the Authors?"
 
-    results = retrieve_relevant_chunks(query, chunks, index, model)
+    results = retrieve_relevant_chunks(query, chunks, index, embedding_model)
 
     # answer = generate_answer(query, results, generator)
-    answer = generate_answer(query, results, tokenizer, model)
+    answer = generate_answer(query, results, tokenizer, embedding_model)
 
     print("\nFinal Answer:\n")
     print(answer)

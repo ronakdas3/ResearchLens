@@ -354,3 +354,20 @@ data/faiss.index
 data/chunks.npy
 
 This separates the expensive indexing step from the query phase, significantly improving system efficiency.
+
+---
+
+## Step 17 – Add Centralized Model Manager
+
+Implemented a centralized model loader to avoid repeated model initialization.
+
+File created:
+src/models/model_manager.py
+
+Features:
+
+* Lazy loading for embedding model and LLM
+* Ensures models are loaded only once
+* Reduces redundant memory usage and startup time
+
+improves efficiency.
