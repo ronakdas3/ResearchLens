@@ -371,3 +371,21 @@ Features:
 * Reduces redundant memory usage and startup time
 
 improves efficiency.
+
+---
+
+## Step 18 – Add Retrieval Reranking
+
+Implemented a reranking stage to improve retrieval quality.
+
+File created:
+src/retrieval/reranker.py
+
+Model used:
+cross-encoder/ms-marco-MiniLM-L-6-v2
+
+Pipeline improvement:
+
+User Query → FAISS retrieval → Candidate chunks → Reranker → Best chunks → LLM answer
+
+reranker evaluates query–chunk pairs and assigns relevance scores, improving context selection before passing data to the LLM.

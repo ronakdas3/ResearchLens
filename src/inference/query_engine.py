@@ -1,11 +1,12 @@
 import numpy as np
 import faiss
-from sentence_transformers import SentenceTransformer
+# from sentence_transformers import SentenceTransformer
 from src.models.model_manager import get_embedding_model, get_llm
+from src.retrieval.reranker import rerank_chunks
 
-from src.data.pdf_loader import extract_text_from_pdf
-from src.data.text_chunker import chunk_text
-from src.embeddings.embedding_generator import generate_embeddings
+# from src.data.pdf_loader import extract_text_from_pdf
+# from src.data.text_chunker import chunk_text
+# from src.embeddings.embedding_generator import generate_embeddings
 from src.retrieval.vector_store import build_vector_index, search_index
 
 from src.models.llm_interface import load_llm, generate_answer
@@ -64,6 +65,10 @@ if __name__ == "__main__":
 
     results = retrieve_relevant_chunks(query, chunks, index, embedding_model)
 
+    results = rerank_chunks(query, results)
+
+    results = results[:3]
+    
     # answer = generate_answer(query, results, generator)
     answer = generate_answer(query, results, tokenizer, embedding_model)
 
