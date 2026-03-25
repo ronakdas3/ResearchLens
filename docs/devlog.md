@@ -389,3 +389,81 @@ Pipeline improvement:
 User Query → FAISS retrieval → Candidate chunks → Reranker → Best chunks → LLM answer
 
 reranker evaluates query–chunk pairs and assigns relevance scores, improving context selection before passing data to the LLM.
+
+---
+
+## Step 19 – Add Prompt Templates and Source Citations
+
+Implemented structured prompt templates for the RAG pipeline.
+
+File created:
+src/models/prompt_templates.py
+
+Features:
+
+* Context formatting with chunk identifiers
+* Instructions restricting the model to provided context
+* Citation-style references in generated answers
+
+Pipeline improvement:
+
+Retrieved chunks → Prompt template → LLM answer with citations
+
+improves answer reliability, reduces hallucinations, and adds explainability.
+
+---
+
+## Step 20 – Build Streamlit UI
+
+Created a Streamlit-based web interface for interacting with the RAG pipeline.
+
+Features:
+
+* User input for queries
+* Integration with backend retrieval + generation pipeline
+* Display of answers and source chunks
+
+convert project to a interactive AI application.
+
+---
+
+## Step 21 – Add Chat Interface
+
+Upgraded the UI to support a conversational chat interface using Streamlit session state.
+
+Features:
+
+* Maintains chat history across interactions
+* Displays user and assistant messages in chat format
+* Improves usability and user experience
+
+interactive chat(kind of)
+
+---
+
+## Step 22 – Upgrade LLM to TinyLlama
+
+Replaced FLAN-T5 with TinyLlama (TinyLlama-1.1B-Chat).
+
+Reason:
+
+* Better handling of long-form context
+* Improved response quality
+* More suitable for instruction-based generation
+
+This significantly improved answer accuracy and relevance.
+
+---
+
+## Step 23 – Add Configurable Answer Length
+
+Introduced dynamic control over LLM output length.
+
+Features:
+
+* Added UI slider to control max tokens
+* Updated generation function to accept dynamic token limits
+* Improved prompt to encourage detailed responses
+
+some answers were too long but llm was limited. this removes limitations for long answers.
+

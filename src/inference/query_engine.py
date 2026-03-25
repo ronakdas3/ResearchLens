@@ -60,17 +60,30 @@ if __name__ == "__main__":
     # generator = load_llm()
     # tokenizer, model = load_llm()
 
-    # query = "What is the main contribution of this paper?"
-    query = "Who are the Authors?"
+    query = "What is the main contribution of this paper?"
+    # query = "Who are the Authors of this paper at the top of the page?"
+    # query = "What is the transformer architecture?"
+    # query = "what architecture does the paper propose?"
+    # query = "what is attention"
+    # query = "what is Scaled Dot-Product Attention"
+    # query = "what GPUs were used"
+
 
     results = retrieve_relevant_chunks(query, chunks, index, embedding_model)
 
     results = rerank_chunks(query, results)
 
-    results = results[:3]
+    results = results[:5]
     
     # answer = generate_answer(query, results, generator)
-    answer = generate_answer(query, results, tokenizer, embedding_model)
+    answer = generate_answer(query, results, tokenizer, llm_model)
+
+    print("\nThe question was\n")
+    print(query)
 
     print("\nFinal Answer:\n")
     print(answer)
+
+    print("\nSources:\n")
+    for i, chunk in enumerate(results):
+        print(f"[{i+1}] {chunk[:300]}\n")
