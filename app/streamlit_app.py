@@ -22,7 +22,8 @@ st.set_page_config(
 )
 
 st.title("📄 AI Research Assistant")
-st.markdown("Chat with your research paper using AI")
+st.markdown("Chat with research papers using AI")
+
 
 # -------------------- SIDEBAR --------------------
 with st.sidebar:
@@ -30,6 +31,7 @@ with st.sidebar:
 
     top_k = st.slider("FAISS Top-K", 3, 10, 5)
     rerank_k = st.slider("Final Chunks", 1, 5, 3)
+    max_tokens = st.slider("Answer Length", 100, 600, 300)
 
     st.markdown("---")
     st.markdown("### ℹ️ About")
@@ -40,8 +42,6 @@ with st.sidebar:
         "- TinyLlama generation"
     )
 
-    max_tokens = st.slider("Answer Length (tokens)", 100, 600, 300)
-
 
 # -------------------- LOAD MODELS --------------------
 @st.cache_resource
@@ -51,24 +51,60 @@ def load_models():
     return embedding_model, tokenizer, llm_model
 
 
+embedding_model, tokenizer, llm_model = load_models()
+
+
+# -------------------- PAPER SELECTION --------------------
+st.subheader("📚 Choose a Paper")
+
+paper_option = st.selectbox(
+    "Select a research paper",
+    ["Transformer", "ResNet"]
+)
+
+# Paper descriptions
+if paper_option == "Transformer":
+    st.caption("Attention Is All You Need (Vaswani et al., 2017)")
+
+elif paper_option == "ResNet":
+    st.caption("Deep Residual Learning for Image Recognition (He et al., 2015)")
+
+
+# -------------------- RESET CHAT ON SWITCH --------------------
+if "last_paper" not in st.session_state:
+    st.session_state.last_paper = paper_option
+
+if st.session_state.last_paper != paper_option:
+    st.session_state.messages = []
+    st.session_state.last_paper = paper_option
+
+
+# -------------------- MAP PAPER TO PATHS --------------------
+def get_paper_paths(option):
+
+    if option == "Transformer":
+        return (
+            "data/papers/transformer/faiss.index",
+            "data/papers/transformer/chunks.npy"
+        )
+
+    elif option == "ResNet":
+        return (
+            "data/papers/resnet/faiss.index",
+            "data/papers/resnet/chunks.npy"
+        )
+
+
+# -------------------- LOAD DATA --------------------
 @st.cache_resource
-def load_data():
-    index = faiss.read_index("data/faiss.index")
-    chunks = np.load("data/chunks.npy", allow_pickle=True).tolist()
+def load_data(index_path, chunks_path):
+    index = faiss.read_index(index_path)
+    chunks = np.load(chunks_path, allow_pickle=True).tolist()
     return index, chunks
 
 
-embedding_model, tokenizer, llm_model = load_models()
-index, chunks = load_data()
-
-
-# -------------------- PDF UPLOAD --------------------
-uploaded_file = st.file_uploader("📄 Upload a PDF (optional)", type="pdf")
-
-if uploaded_file:
-    with open("data/raw/temp.pdf", "wb") as f:
-        f.write(uploaded_file.read())
-    st.success("PDF uploaded! (Re-index manually for now)")
+index_path, chunks_path = get_paper_paths(paper_option)
+index, chunks = load_data(index_path, chunks_path)
 
 
 # -------------------- CHAT STATE --------------------
@@ -86,16 +122,15 @@ for msg in st.session_state.messages:
 user_input = st.chat_input("Ask a question...")
 
 
-# -------------------- MAIN LOGIC --------------------
+# -------------------- MAIN PIPELINE --------------------
 if user_input:
 
-    # Add user message
+    # Save user message
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     with st.chat_message("user"):
         st.write(user_input)
 
-    # Assistant response
     with st.chat_message("assistant"):
 
         with st.spinner("Thinking... 🤔"):
@@ -103,7 +138,7 @@ if user_input:
             # 1️⃣ Embed query
             query_embedding = embedding_model.encode([user_input])
 
-            # 2️⃣ FAISS search
+            # 2️⃣ Retrieve
             distances, indices = search_index(index, query_embedding, k=top_k)
             retrieved_chunks = [chunks[i] for i in indices[0]]
 
@@ -122,10 +157,10 @@ if user_input:
 
         st.write(answer)
 
-        # Confidence info
+        # Info
         st.caption(f"Retrieved {len(final_chunks)} relevant chunks")
 
-        # Show sources
+        # Sources
         st.markdown("### 📚 Sources")
         for i, chunk in enumerate(final_chunks):
             with st.expander(f"Source {i+1}"):
