@@ -15,6 +15,7 @@ Users can ask questions about a document and receive context-aware answers gener
 - 🤖 LLM-based answer generation (TinyLlama)
 - 📚 Source chunk display for transparency
 - ⚙️ Adjustable answer length
+- 📚 Multiple research papers support (switch between datasets)
 
 
 ## How to Run

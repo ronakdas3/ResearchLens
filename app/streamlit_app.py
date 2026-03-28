@@ -12,6 +12,7 @@ from src.models.model_manager import get_embedding_model, get_llm
 from src.retrieval.vector_store import search_index
 from src.retrieval.reranker import rerank_chunks
 from src.models.llm_interface import generate_answer
+from src.indexing.build_index import build_index_for_paper
 
 
 # -------------------- PAGE CONFIG --------------------
@@ -65,7 +66,6 @@ paper_option = st.selectbox(
 # Paper descriptions
 if paper_option == "Transformer":
     st.caption("Attention Is All You Need (Vaswani et al., 2017)")
-
 elif paper_option == "ResNet":
     st.caption("Deep Residual Learning for Image Recognition (He et al., 2015)")
 
@@ -79,7 +79,7 @@ if st.session_state.last_paper != paper_option:
     st.session_state.last_paper = paper_option
 
 
-# -------------------- MAP PAPER TO PATHS --------------------
+# -------------------- MAP PAPER PATHS --------------------
 def get_paper_paths(option):
 
     if option == "Transformer":
@@ -103,8 +103,42 @@ def load_data(index_path, chunks_path):
     return index, chunks
 
 
-index_path, chunks_path = get_paper_paths(paper_option)
-index, chunks = load_data(index_path, chunks_path)
+# -------------------- UPLOAD + INDEX --------------------
+@st.cache_resource
+def process_uploaded_pdf(upload_bytes):
+
+    upload_path = "data/temp_uploaded.pdf"
+    save_dir = "data/temp_index"
+
+    with open(upload_path, "wb") as f:
+        f.write(upload_bytes)
+
+    build_index_for_paper(upload_path, save_dir)
+
+    return f"{save_dir}/faiss.index", f"{save_dir}/chunks.npy"
+
+
+uploaded_file = st.file_uploader("📄 Upload your own PDF", type="pdf")
+
+use_uploaded = False
+
+if uploaded_file:
+    st.info("Processing uploaded PDF...")
+
+    index_path, chunks_path = process_uploaded_pdf(uploaded_file.read())
+
+    st.success("PDF indexed successfully!")
+    use_uploaded = True
+
+
+# -------------------- SELECT DATA SOURCE --------------------
+if use_uploaded:
+    index, chunks = load_data(index_path, chunks_path)
+    st.caption("Using uploaded document")
+else:
+    index_path, chunks_path = get_paper_paths(paper_option)
+    index, chunks = load_data(index_path, chunks_path)
+    st.caption(f"Using: {paper_option}")
 
 
 # -------------------- CHAT STATE --------------------
@@ -125,7 +159,6 @@ user_input = st.chat_input("Ask a question...")
 # -------------------- MAIN PIPELINE --------------------
 if user_input:
 
-    # Save user message
     st.session_state.messages.append({"role": "user", "content": user_input})
 
     with st.chat_message("user"):
@@ -135,7 +168,7 @@ if user_input:
 
         with st.spinner("Thinking... 🤔"):
 
-            # 1️⃣ Embed query
+            # 1️⃣ Embed
             query_embedding = embedding_model.encode([user_input])
 
             # 2️⃣ Retrieve
@@ -146,7 +179,7 @@ if user_input:
             reranked_chunks = rerank_chunks(user_input, retrieved_chunks)
             final_chunks = reranked_chunks[:rerank_k]
 
-            # 4️⃣ Generate answer
+            # 4️⃣ Generate
             answer = generate_answer(
                 user_input,
                 final_chunks,
@@ -157,16 +190,13 @@ if user_input:
 
         st.write(answer)
 
-        # Info
         st.caption(f"Retrieved {len(final_chunks)} relevant chunks")
 
-        # Sources
         st.markdown("### 📚 Sources")
         for i, chunk in enumerate(final_chunks):
             with st.expander(f"Source {i+1}"):
                 st.write(chunk)
 
-    # Save assistant message
     st.session_state.messages.append({"role": "assistant", "content": answer})
 
 

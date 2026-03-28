@@ -467,3 +467,18 @@ Features:
 
 some answers were too long but llm was limited. this removes limitations for long answers.
 
+---
+
+## Step 24 – Multi-Paper Support
+
+Implemented support for multiple research papers.
+
+Features:
+
+* Separate FAISS index per paper
+* Dynamic loading based on user selection
+* Paper selection UI in Streamlit
+* Chat reset when switching papers
+
+improved usability and make the system scalable to multiple documents.
+
