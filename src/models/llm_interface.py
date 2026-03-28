@@ -7,8 +7,8 @@ import torch
 
 def load_llm():
 
-    # model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
-    model_name = "google/flan-t5-small"
+    model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    # model_name = "google/flan-t5-small"
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -21,14 +21,16 @@ def load_llm():
 
     # model.to(device)
 
-    # model = AutoModelForCausalLM.from_pretrained(
-    #     model_name,
-    #     torch_dtype=torch.float32
-    # )
-
-    model = AutoModelForSeq2SeqLM.from_pretrained(
-        model_name
+    # tiny llama
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name,
+        torch_dtype=torch.float32
     )
+
+    # # flan tf small
+    # model = AutoModelForSeq2SeqLM.from_pretrained(
+    #     model_name
+    # )
 
     model.to(device)
 
@@ -38,20 +40,6 @@ def load_llm():
 def generate_answer(query, context_chunks, tokenizer, model, max_tokens = 300):
 
     context = "\n\n".join(context_chunks[:3])
-
-#     prompt = f"""
-# You are a helpful AI research assistant.
-
-# Answer clearly and directly in 1-3 sentences.
-
-# Context:
-# {context}
-
-# Question:
-# {query}
-
-# Answer:
-# """
 
     prompt = f"""
 You are a helpful AI research assistant.
