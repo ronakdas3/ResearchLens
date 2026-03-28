@@ -7,7 +7,8 @@ import torch
 
 def load_llm():
 
-    model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    # model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+    model_name = "google/flan-t5-small"
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
