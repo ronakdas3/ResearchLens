@@ -21,9 +21,13 @@ def load_llm():
 
     # model.to(device)
 
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name,
-        torch_dtype=torch.float32
+    # model = AutoModelForCausalLM.from_pretrained(
+    #     model_name,
+    #     torch_dtype=torch.float32
+    # )
+
+    model = AutoModelForSeq2SeqLM.from_pretrained(
+        model_name
     )
 
     model.to(device)
