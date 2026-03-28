@@ -1,6 +1,7 @@
 import sys
 import os
 
+# Fix import path
 ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT_DIR)
 
@@ -17,12 +18,12 @@ from src.indexing.build_index import build_index_for_paper
 
 # -------------------- PAGE CONFIG --------------------
 st.set_page_config(
-    page_title="AI Research Assistant",
+    page_title="ResearchLens",
     page_icon="📄",
     layout="wide"
 )
 
-st.title("📄 AI Research Assistant")
+st.title("📄 ResearchLens")
 st.markdown("Chat with research papers using AI")
 
 
@@ -40,7 +41,7 @@ with st.sidebar:
         "RAG Pipeline:\n"
         "- FAISS retrieval\n"
         "- Cross-encoder reranking\n"
-        "- TinyLlama generation"
+        "- LLM generation"
     )
 
 
@@ -55,39 +56,46 @@ def load_models():
 embedding_model, tokenizer, llm_model = load_models()
 
 
-# -------------------- PAPER SELECTION --------------------
-st.subheader("📚 Choose a Paper")
+# -------------------- SOURCE SELECTOR --------------------
+st.subheader("📂 Choose Data Source")
 
-paper_option = st.selectbox(
-    "Select a research paper",
-    ["Transformer", "ResNet"]
-)
+# Upload first
+uploaded_file = st.file_uploader("📄 Upload your own PDF", type="pdf")
 
-# Paper descriptions
-if paper_option == "Transformer":
-    st.caption("Attention Is All You Need (Vaswani et al., 2017)")
-elif paper_option == "ResNet":
-    st.caption("Deep Residual Learning for Image Recognition (He et al., 2015)")
-
-
-# -------------------- RESET CHAT ON SWITCH --------------------
-if "last_paper" not in st.session_state:
-    st.session_state.last_paper = paper_option
-
-if st.session_state.last_paper != paper_option:
-    st.session_state.messages = []
-    st.session_state.last_paper = paper_option
+# Radio selector
+if uploaded_file:
+    source_option = st.radio(
+        "Select source",
+        ["Default Papers", "Uploaded PDF"]
+    )
+else:
+    source_option = "Default Papers"
 
 
-# -------------------- MAP PAPER PATHS --------------------
+# -------------------- DEFAULT PAPERS --------------------
+paper_option = None
+
+if source_option == "Default Papers":
+    st.subheader("📚 Choose a Paper")
+
+    paper_option = st.selectbox(
+        "Select a research paper",
+        ["Transformer", "ResNet"]
+    )
+
+    if paper_option == "Transformer":
+        st.caption("Attention Is All You Need (Vaswani et al., 2017)")
+    elif paper_option == "ResNet":
+        st.caption("Deep Residual Learning for Image Recognition (He et al., 2015)")
+
+
+# -------------------- PATH MAPPING --------------------
 def get_paper_paths(option):
-
     if option == "Transformer":
         return (
             "data/papers/transformer/faiss.index",
             "data/papers/transformer/chunks.npy"
         )
-
     elif option == "ResNet":
         return (
             "data/papers/resnet/faiss.index",
@@ -103,10 +111,9 @@ def load_data(index_path, chunks_path):
     return index, chunks
 
 
-# -------------------- UPLOAD + INDEX --------------------
+# -------------------- PROCESS UPLOADED PDF --------------------
 @st.cache_resource
 def process_uploaded_pdf(upload_bytes):
-
     upload_path = "data/temp_uploaded.pdf"
     save_dir = "data/temp_index"
 
@@ -118,27 +125,40 @@ def process_uploaded_pdf(upload_bytes):
     return f"{save_dir}/faiss.index", f"{save_dir}/chunks.npy"
 
 
-uploaded_file = st.file_uploader("📄 Upload your own PDF", type="pdf")
-
-use_uploaded = False
+uploaded_index = None
+uploaded_chunks = None
 
 if uploaded_file:
     st.info("Processing uploaded PDF...")
 
     index_path, chunks_path = process_uploaded_pdf(uploaded_file.read())
+    uploaded_index, uploaded_chunks = load_data(index_path, chunks_path)
 
     st.success("PDF indexed successfully!")
-    use_uploaded = True
 
 
-# -------------------- SELECT DATA SOURCE --------------------
-if use_uploaded:
-    index, chunks = load_data(index_path, chunks_path)
+# -------------------- SELECT ACTIVE DATA --------------------
+if source_option == "Uploaded PDF" and uploaded_index is not None:
+    index, chunks = uploaded_index, uploaded_chunks
     st.caption("Using uploaded document")
+
+elif source_option == "Uploaded PDF":
+    st.warning("Please upload a PDF first.")
+    st.stop()
+
 else:
     index_path, chunks_path = get_paper_paths(paper_option)
     index, chunks = load_data(index_path, chunks_path)
     st.caption(f"Using: {paper_option}")
+
+
+# -------------------- RESET CHAT ON SOURCE CHANGE --------------------
+if "last_source" not in st.session_state:
+    st.session_state.last_source = source_option
+
+if st.session_state.last_source != source_option:
+    st.session_state.messages = []
+    st.session_state.last_source = source_option
 
 
 # -------------------- CHAT STATE --------------------
@@ -168,18 +188,18 @@ if user_input:
 
         with st.spinner("Thinking... 🤔"):
 
-            # 1️⃣ Embed
+            # Embed query
             query_embedding = embedding_model.encode([user_input])
 
-            # 2️⃣ Retrieve
+            # Retrieve
             distances, indices = search_index(index, query_embedding, k=top_k)
             retrieved_chunks = [chunks[i] for i in indices[0]]
 
-            # 3️⃣ Rerank
+            # Rerank
             reranked_chunks = rerank_chunks(user_input, retrieved_chunks)
             final_chunks = reranked_chunks[:rerank_k]
 
-            # 4️⃣ Generate
+            # Generate answer
             answer = generate_answer(
                 user_input,
                 final_chunks,
