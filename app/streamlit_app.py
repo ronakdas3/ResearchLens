@@ -69,8 +69,7 @@ if uploaded_file:
         ["Default Papers", "Uploaded PDF"]
     )
 else:
-    source_option = "Default Papers"
-
+    source_option = "Uploaded PDF"
 
 # -------------------- DEFAULT PAPERS --------------------
 paper_option = None
