@@ -66,10 +66,10 @@ uploaded_file = st.file_uploader("📄 Upload your own PDF", type="pdf")
 if uploaded_file:
     source_option = st.radio(
         "Select source",
-        ["Default Papers", "Uploaded PDF"]
+        ["Uploaded PDF","Default Papers"]
     )
 else:
-    source_option = "Uploaded PDF"
+    source_option = "Default Papers"
 
 # -------------------- DEFAULT PAPERS --------------------
 paper_option = None
