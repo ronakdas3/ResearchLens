@@ -2,5 +2,5 @@ aira/
 __pycache__/
 *.pyc
 .env
-data/
+# data/
 .ipynb_checkpoints/
