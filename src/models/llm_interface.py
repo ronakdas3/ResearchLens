@@ -13,11 +13,19 @@ def load_llm():
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
 
+    # model = AutoModelForCausalLM.from_pretrained(
+    #     model_name,
+    #     torch_dtype=torch.float32
+    # )
+
+    # model.to(device)
+
     model = AutoModelForCausalLM.from_pretrained(
         model_name,
-        torch_dtype=torch.float16 if device == "cuda" else torch.float32,
-        device_map="auto"
+        torch_dtype=torch.float32
     )
+
+    model.to(device)
 
     return tokenizer, model
 
